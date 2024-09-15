@@ -2,65 +2,52 @@
 //  ContentView.swift
 //  Versea
 //
-//  Created by 王奕翔 on 2024/9/15.
+//  Created by Hazel Gong on 2024/9/15.
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    let message = "I look forward to seeing you again soon"
+    let gridItems = Array(repeating: GridItem(.flexible(), spacing: 5), count: 4)
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        VStack(spacing: 20) {
+            Text("Versea")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.blue)
+            
+            LazyVGrid(columns: gridItems, spacing: 5) {
+                ForEach(message.components(separatedBy: " "), id: \.self) { word in
+                    Text(word)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
+                        .background(Color.blue.opacity(Double.random(in: 0.3...1)))
+                        .cornerRadius(8)
                 }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                
+                ForEach(0..<8) { _ in
+                    Rectangle()
+                        .fill(Color.blue.opacity(Double.random(in: 0.1...0.5)))
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
+                        .cornerRadius(8)
                 }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
+            
             }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.blue, lineWidth: 2)
+            )
+            .padding()
         }
     }
 }
 
+
+
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
